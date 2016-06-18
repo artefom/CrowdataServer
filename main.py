@@ -32,8 +32,8 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 
 	circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
 	resp = dict()
-	resp['lng'] = [i[0] for i in circles]
-	resp['lat'] = [i[1] for i in circles]
+	resp['lat'] = [i[0] for i in circles]
+	resp['lng'] = [i[1] for i in circles]
 	resp['size'] = [i[2] for i in circles]
 
 	resp = json.dumps(resp,indent = 4)
@@ -58,7 +58,7 @@ def InitializeServer_Debug():
 	glob.SetGlobalParameters()
 
 	sampleArr = []
-	for i in range(100):
+	for i in range(500):
 		ri = apiwrappers.responses.base(apiwrappers.SOCIALMEDIAS.instagram, 
 				(random.uniform(55.56747507540021,55.92150795277898),
 				random.uniform(37.371368408203125,37.863006591796875)),
@@ -108,10 +108,11 @@ class webcrawler(multiprocessing.Process):
 """
 def console_command_reader():
 	logging.info("Main loop entered")
-
+	
+	print("waiting for standard input... ('exit' to exit)")
+	
 	while True:
 		command = input()
-		print('command recieved: ')
 		logging.info("console command recieved: "+command)
 		if (command == "exit"):
 			break
@@ -150,12 +151,13 @@ if __name__ == '__main__':
 	else:
 		pass
 
+	print("Listening " + cfg['ip']+":"+ str(cfg['port']) ) 
 	server = Process(target=startApp,args=(cfg['ip'],cfg['port']))
 	crawler = webcrawler()
 
 	server.daemon = True
 	crawler.deamon = True
-	
+
 	server.start()
 	crawler.start()
 	
