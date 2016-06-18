@@ -36,5 +36,5 @@ def startTests():
 	# resp = json.dumps(resp)
 	# print("Response:\n",resp)
 
-if __name__ == '__main__':
-	os.system("python main.py")
+# if __name__ == '__main__':
+# 	os.system("python main.py")
