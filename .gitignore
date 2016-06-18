@@ -2,5 +2,6 @@ venv/
 start
 end
 debug.cfg
+*.log
 ignored/
 __pycache__/

@@ -11,11 +11,11 @@ import glob
 import apiwrappers
 import apiwrappers.responses
 
-open('ignored/server.log', 'w').close()
-logging.basicConfig(filename='ignored/server.log',level=logging.DEBUG)
+open('server.log', 'w').close()
+logging.basicConfig(filename='server.log',level=logging.DEBUG)
 logging.debug('This message should go to the log file')
 logging.info('So should this')
-logging.warning('And this, too')
+logging.error('And this, too')
 
 app = Flask(__name__)
 
