@@ -72,8 +72,7 @@ class DataCell:
         lat_btb = max(self.coordinates[:,0]) # bottom border
         return (lat_tpb <= gps_coords[0] < lat_btb) and (lng_lhb <= gps_coords[1] < lng_rhb)
     
-    """
-    Добавление элемента в клетку по слабому указателю
+    """ Добавление элемента в клетку по слабому указателю
     """
     def addRef(self,item: weakref,point: list):
         #print('attempting to add point')
@@ -144,35 +143,61 @@ class DataCell:
             result[row,col] = ref
         return result
             
+    """ Add multiple weak references
+    """
     def addRefs():
         pass
                 
     def __str__(self):
         return "DC"+str(self.resolution)+str(self.depth)
     
-    def getLayerDepth(self, width):
+    """ Returns size of top-level cell in killometers
+    """
+    def getTopCellSize(self):
+        return geoDistance(self.coordinates[0],(self.coordinates[0][0],self.coordinates[1][1]))/self.resolution
+        
 
-        cellSize = geoDistance(self.coordinates[0],(self.coordinates[0][0],self.coordinates[1][1]))/self.resolution
+    """ Returns cell size on specified level or -1 if depth is invalid
+    """
+    def getCellSizeByDepth(depth):
+        pass
+
+    """ Get optimal layer depth for rendering circles.
+        It calculates depth so that at least 4 squares of that depth would
+        fit in width (with1+with2+width3+width4+...) >= width
+    """
+    def getLayerRenderDepth(self, width):
+
+        cellSize = getTopCellSize()
+
+        #Start with depth 1
         depth = 1
+        #Increase depth incrementally, while cell boarder size
+        #fits in with of screen at least 4 times
         while (width/cellSize <= 4):
             cellSize/=2
             depth+=1
-        if depth > self.depth:
-            depth = self.depth
+
+        #if depth exceeds maximum depth, reset it
+        depth = max(self.depth, depth)
+
         return depth
 
     def getCircles(self,coordinates):
         dist = geoDistance(coordinates[0],(coordinates[0][0],coordinates[1][1]))
-        layer_depth = self.getLayerDepth(dist)
+        layer_depth = self.getLayerRenderDepth(dist)
         layer = self.getLayer(layer_depth)
         
         circles = []
         for i in range(len(layer)):
             for j in range(len(layer[0])):
 
+                #If cell is visible in current boundaries
                 if  coordinates[1][0] < layer[i][j]().coordinates[0][0] < coordinates[0][0] and\
                     coordinates[0][1] < layer[i][j]().coordinates[0][1] < coordinates[1][1]:
 
+                        #coords - accumulator for shifting return coordinates of circle
+                        #So, circle is drawn not in center of cell
                         coords = np.array([0,0],dtype=float)
                         count = 0
                         for row in layer[i][j]().subcells:

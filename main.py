@@ -1,12 +1,15 @@
 from flask import Flask
 import logging
-import utests
 from multiprocessing import Process
-import mainloop
-import dataCells
 import json
-from glob import *
+import random
+
+#import crowdata packages and modules
+import utests
+import datamodel
 import glob
+import apiwrappers
+import apiwrappers.responses
 
 open('ignored/server.log', 'w').close()
 logging.basicConfig(filename='ignored/server.log',level=logging.DEBUG)
@@ -29,7 +32,7 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 	resp['lat'] = [i[1] for i in circles]
 	resp['size'] = [i[2] for i in circles]
 
-	resp = json.dumps(resp)
+	resp = json.dumps(resp,indent = 4)
 	return resp
 
 """ When this code is in production, this variable should be True
@@ -48,8 +51,19 @@ def startApp(ip,port):
 """
 def InitializeServer_Debug():
 	logging.info('Server Debug initialization')
-	SetGlobalParameters()
-	utests.addRandomData()
+	glob.SetGlobalParameters()
+
+	sampleArr = []
+	for i in range(100):
+		ri = apiwrappers.responses.base(apiwrappers.SOCIALMEDIAS.instagram, 
+				(random.uniform(55.56747507540021,55.92150795277898),
+				random.uniform(37.371368408203125,37.863006591796875)),
+				i)
+		sampleArr.append(ri)
+
+	print('adding raw info List')
+	print('mat = ',glob.mat)
+	glob.mat.addRawInfoList(sampleArr)
 
 """ Production mode initialization
 	It's supposed to load previously saved data from disk and
@@ -74,27 +88,57 @@ def MainLoop():
 
 if __name__ == '__main__':
 
-	#Load server config (server\debug mode, ip, port)
-	#Used to determine, weather current server is in production, or debug
-	#You should add server.cfg to .gitignore
-	f = open('server.cfg')
-	lines = [line for line in f]
-	serverType = lines[0]
+	# server config
+	server_cfg_path = "server.cfg"
+	server_cfg = {'ip' : 'localhost','port' : 50000}
+	
+	# debug condig, has priority over server config and overwrites it
+	debug_cfg_path = "debug.cfg"
+	debug_cfg = dict()
 
-	#if first line of server.cfg is 'server', than server is in production
-	if (serverType.strip() == 'server'):
-		isServer = True
+	try:
+		with open(server_cfg_path) as data_file:
+			server_cfg = json.load(data_file)
+	except:
+		logging.error('Unable to load'+server_cfg_path)
 
-	#Execute unit tests, if server is not in production
-	if (not isServer):
-		utests.startTests()
+	try:
+		with open(debug_cfg_path) as data_file:
+			debug_cfg = json.load(data_file)
+	except:
+		logging.error('Unable to load'+debug_cfg_path)
 
-	#Gather ip and port from server.cfg
-	ip, port = lines[1].strip().split(':')
 
-	#Initialize data sctructures in debug mode
-	InitializeServer_Debug()
+	#overwrite config from server.cfg with debug.cfg
 
-	print('Server executed at ',ip,':',port,sep='')
+	cfg = glob.dict_merge_overwrite(server_cfg,debug_cfg)
 
-	startApp(ip,port)
+	if cfg.get("debug",0):
+		pass
+	else:
+		pass
+
+	# #Load server config (server\debug mode, ip, port)
+	# #Used to determine, weather current server is in production, or debug
+	# #You should add server.cfg to .gitignore
+	# f = open('server.cfg')
+	# lines = [line for line in f]
+	# serverType = lines[0]
+
+	# #if first line of server.cfg is 'server', than server is in production
+	# if (serverType.strip() == 'server'):
+	# 	isServer = True
+
+	# #Execute unit tests, if server is not in production
+	# if (not isServer):
+	# 	utests.startTests()
+
+	# #Gather ip and port from server.cfg
+	# ip, port = lines[1].strip().split(':')
+
+	# #Initialize data sctructures in debug mode
+	# InitializeServer_Debug()
+
+	# print('Server executed at ',ip,':',port,sep='')
+
+	# startApp(ip,port)

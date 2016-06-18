@@ -1,6 +1,6 @@
 venv/
 start
 end
-server.cfg
+debug.cfg
 ignored/
 __pycache__/
