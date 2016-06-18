@@ -7,6 +7,11 @@ import random
 import datetime
 import weakref
 import time
+import _thread
+from flask import request
+import os
+import signal
+import numpy as np
 
 #import crowdata packages and modules
 import utests
@@ -30,15 +35,25 @@ def hello_world():
 @app.route('/circles/<lat1>&<lng1>&<lat2>&<lng2>')
 def circlesRequest(lat1,lng1,lat2,lng2):
 
+	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
+
 	circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
+	sizes = np.array([i[2] for i in circles])
+	sizes = sizes-sizes.min()
+	sizes = sizes/sizes.max()
+	sizes = np.sqrt(sizes*10)
+	sizes = sizes/sizes.max()
+	sizes = 5+sizes*5
+
 	resp = dict()
 	resp['lat'] = [i[0] for i in circles]
 	resp['lng'] = [i[1] for i in circles]
-	resp['size'] = [i[2] for i in circles]
+	resp['size'] = sizes.tolist()
 
 	resp = json.dumps(resp,indent = 4)
-	logging.debug('processed request')
+
 	return resp
+
 
 """ When this code is in production, this variable should be True
 """
@@ -47,7 +62,7 @@ isServer = False
 """ Executes server at ip and port
 """
 def startApp(ip,port):
-	#logging.info('startApp')
+	logging.info('startApp')
 	#print("Listening " + ip+":"+ port ) 
 	app.run(ip,int(port),debug=True,use_reloader=False)
 
@@ -99,6 +114,7 @@ class webcrawler(multiprocessing.Process):
 			time.sleep(1)
 			logging.info( "Crawler crawls. Time: "+str(datetime.datetime.now()) )
 		logging.info("Crawler exits")
+		app.stop()
 
 	def shutdown(self):
 		self.exit.set()
@@ -107,7 +123,7 @@ class webcrawler(multiprocessing.Process):
 """ Loop, reading command line or gathering information from web
 	when this method finishes, server shuts down
 """
-def console_command_reader():
+def process_stdin():
 	logging.info("Main loop entered")
 	
 	print("waiting for standard input... ('exit' to exit)")
@@ -118,7 +134,15 @@ def console_command_reader():
 		if (command == "exit"):
 			break
 
-	logging.info("Main loop finalized")
+def print_output():
+	print("waiting for standard input... ('exit' to exit)")
+	
+	while True:
+		command = input()
+		logging.info("console command recieved: "+command)
+		if (command == "exit"):
+			break
+
 
 if __name__ == '__main__':
 
@@ -153,22 +177,4 @@ if __name__ == '__main__':
 	else:
 		InitializeServer_Debug()
 
-	server = Process( target=startApp,args=(cfg['ip'],int(cfg['port'])) )
-
-	crawler = webcrawler()
-
-	#server.daemon = True
-	#crawler.deamon = True
-
-	server.start()
-	crawler.start()
-	
-	console_command_reader()
-	
-	server.terminate()
-	crawler.shutdown()
-
-	server.join()
-	crawler.join()
-
-	logging.info("Server shut down")
+	startApp(cfg['ip'],cfg['port'])
