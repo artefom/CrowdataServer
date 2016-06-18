@@ -1,8 +1,12 @@
 from flask import Flask
 import logging
 from multiprocessing import Process
+import multiprocessing
 import json
 import random
+import datetime
+import weakref
+import time
 
 #import crowdata packages and modules
 import utests
@@ -13,9 +17,9 @@ import apiwrappers.responses
 
 open('server.log', 'w').close()
 logging.basicConfig(filename='server.log',level=logging.DEBUG)
-logging.debug('This message should go to the log file')
-logging.info('So should this')
-logging.error('And this, too')
+# logging.debug('This message should go to the log file')
+# logging.info('So should this')
+# logging.error('And this, too')
 
 app = Flask(__name__)
 
@@ -79,11 +83,39 @@ def FinilizeServer():
 	logging.info("server finalization")
 	pass
 
+
+""" Web crawler, crawls through web, gathering information once a hour o 30 mins
+	Should be infinite loop.
+"""
+class webcrawler(multiprocessing.Process):
+
+	def __init__(self, ):
+		multiprocessing.Process.__init__(self)
+		self.exit = multiprocessing.Event()
+
+	def run(self):
+		while not self.exit.is_set():
+			time.sleep(1)
+			logging.info( "Crawler crawls. Time: "+str(datetime.datetime.now()) )
+		logging.info("Crawler exits")
+
+	def shutdown(self):
+		self.exit.set()
+
+
 """ Loop, reading command line or gathering information from web
 	when this method finishes, server shuts down
 """
-def MainLoop():
+def console_command_reader():
 	logging.info("Main loop entered")
+
+	while True:
+		command = input()
+		print('command recieved: ')
+		logging.info("console command recieved: "+command)
+		if (command == "exit"):
+			break
+
 	logging.info("Main loop finalized")
 
 if __name__ == '__main__':
@@ -114,31 +146,25 @@ if __name__ == '__main__':
 	cfg = glob.dict_merge_overwrite(server_cfg,debug_cfg)
 
 	if cfg.get("debug",0):
-		pass
+		utests.startTests()
 	else:
 		pass
 
-	# #Load server config (server\debug mode, ip, port)
-	# #Used to determine, weather current server is in production, or debug
-	# #You should add server.cfg to .gitignore
-	# f = open('server.cfg')
-	# lines = [line for line in f]
-	# serverType = lines[0]
+	server = Process(target=startApp,args=(cfg['ip'],cfg['port']))
+	crawler = webcrawler()
 
-	# #if first line of server.cfg is 'server', than server is in production
-	# if (serverType.strip() == 'server'):
-	# 	isServer = True
+	server.daemon = True
+	crawler.deamon = True
+	
+	server.start()
+	crawler.start()
+	
+	console_command_reader()
+	
+	server.terminate()
+	crawler.shutdown()
 
-	# #Execute unit tests, if server is not in production
-	# if (not isServer):
-	# 	utests.startTests()
+	server.join()
+	crawler.join()
 
-	# #Gather ip and port from server.cfg
-	# ip, port = lines[1].strip().split(':')
-
-	# #Initialize data sctructures in debug mode
-	# InitializeServer_Debug()
-
-	# print('Server executed at ',ip,':',port,sep='')
-
-	# startApp(ip,port)
+	logging.info("Server shut down")

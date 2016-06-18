@@ -8,7 +8,7 @@ import apiwrappers.responses
 import datamodel
 
 """
-	This executed before server start
+	This executed before server start in debug mode
 """
 def startTests():
-	pass
+	print("Tests executed")
