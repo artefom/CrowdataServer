@@ -3,3 +3,4 @@ start
 end
 server.cfg
 ignored/
+__pycache__/
