@@ -2,3 +2,4 @@ venv/
 start
 end
 server.cfg
+ignored/
