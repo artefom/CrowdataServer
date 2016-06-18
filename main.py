@@ -22,7 +22,7 @@ if __name__ == '__main__':
 	lines = [line for line in f]
 	serverType = lines[0]
 
-	if (serverType == 'server'):
+	if (serverType.strip() == 'server'):
 		isServer = True
 
 	if (not isServer):
