@@ -37,6 +37,7 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 	resp['size'] = [i[2] for i in circles]
 
 	resp = json.dumps(resp,indent = 4)
+	logging.debug('processed request')
 	return resp
 
 """ When this code is in production, this variable should be True
@@ -46,6 +47,8 @@ isServer = False
 """ Executes server at ip and port
 """
 def startApp(ip,port):
+	#logging.info('startApp')
+	#print("Listening " + ip+":"+ port ) 
 	app.run(ip,int(port),debug=True,use_reloader=False)
 
 
@@ -65,8 +68,6 @@ def InitializeServer_Debug():
 				i)
 		sampleArr.append(ri)
 
-	print('adding raw info List')
-	print('mat = ',glob.mat)
 	glob.mat.addRawInfoList(sampleArr)
 
 """ Production mode initialization
@@ -147,16 +148,17 @@ if __name__ == '__main__':
 	cfg = glob.dict_merge_overwrite(server_cfg,debug_cfg)
 
 	if cfg.get("debug",0):
+		InitializeServer_Debug()
 		utests.startTests()
 	else:
-		pass
+		InitializeServer_Debug()
 
-	print("Listening " + cfg['ip']+":"+ str(cfg['port']) ) 
-	server = Process(target=startApp,args=(cfg['ip'],cfg['port']))
+	server = Process( target=startApp,args=(cfg['ip'],int(cfg['port'])) )
+
 	crawler = webcrawler()
 
-	server.daemon = True
-	crawler.deamon = True
+	#server.daemon = True
+	#crawler.deamon = True
 
 	server.start()
 	crawler.start()

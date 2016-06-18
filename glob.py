@@ -13,7 +13,6 @@ mat = None
 def SetGlobalParameters():
     global mat
     if (mat == None):
-        print('setting up mat')
         mat = datamodel.DataMatrix(5)
 
 def geoDistance(coord1,coord2):
