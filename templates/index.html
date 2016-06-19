@@ -61,7 +61,6 @@ function makeRequest(){
 	}
 
 	xmlHttp.onerror = function() {
-  		alert( 'Ошибка ' + this.status );
 	}
 
 	xmlHttp.send();
@@ -157,7 +156,7 @@ function initMap() {
   });
 
 
- map.addListener('zoom_changed', function() {
+ map.addListener('idle', function() {
     // 3 seconds after the center of the map has changed, pan back to the
     // marker.
    deleteAll(); makeRequest();

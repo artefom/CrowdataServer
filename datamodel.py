@@ -163,7 +163,7 @@ class DataCell:
 
 		cellSize = glob.geoDistance(self.coordinates[0],(self.coordinates[0][0],self.coordinates[1][1]))/self.resolution
 		depth = 1
-		while (width/cellSize <= 4):
+		while (width/cellSize <= 10):
 			cellSize/=2
 			depth+=1
 		if depth > self.depth:
