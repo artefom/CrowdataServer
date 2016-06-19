@@ -1,7 +1,10 @@
+import pickle
+
 
 class SOCIALMEDIAS:
     instagram   = 1
     facebook    = 2
+    facebook_event = 3
 
 
 """
@@ -82,3 +85,33 @@ class facebook(base):
             newborns.append(facebook(id,v))
 
         return newborns
+
+class facebook_event(base):
+
+    def __init__(self, id, json):
+        super().__init__(SOCIALMEDIAS.facebook_event, 
+            [json['lat'],json['lng']], 
+            id )
+        self.data['data'] = json
+
+    @staticmethod
+    def list_from_raw_data(data):
+        newborns = []
+        
+        for id,v in data.items():
+            newborns.append(facebook_event(id,v))
+
+        return newborns
+
+    @staticmethod
+    def list_from_file(filename):
+        
+        with open(filename,'rb') as file_data:
+            raw_data = pickle.load(file_data)
+    
+            fbdata = facebook_event.list_from_raw_data(raw_data)
+
+            return fbdata
+
+        return []
+

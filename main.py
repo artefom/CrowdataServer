@@ -84,10 +84,24 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
 
 	try:
-		circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
+
+
+		circles, locations, cell_size = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
+
+		locations_data = []
+
+		for i in locations:
+			try:
+				locations_data.append( i.data )
+			except:
+				pass
+		
+		#circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
 		sizes = np.array([i[2] for i in circles])
+		count = sizes
 		sizes = sizes-sizes.min()
 		sizes = sizes/sizes.max()
+		sizes2 = np.sqrt(sizes)*cell_size*1.3
 		sizes = np.sqrt(sizes*3)
 		sizes = sizes/sizes.max()
 		sizes = 2+sizes*8
@@ -96,8 +110,11 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 		resp['lat'] = [i[0] for i in circles]
 		resp['lng'] = [i[1] for i in circles]
 		resp['size'] = sizes.tolist()
+		resp['size2'] = sizes2.tolist()
+		resp['count'] = count.tolist()
+		resp['events'] = locations_data
 
-		resp = json.dumps(resp,indent = 4)
+		resp = json.dumps(resp,indent = 4,ensure_ascii=False)
 
 		return resp
 	except:
@@ -132,14 +149,15 @@ def InitializeServer_Debug():
 	# 	sampleArr.append(ri)
 	#   glob.mat.addRawInfoList(fbdata)
 
-	print("Here")
-	with open('fb_data.dat','rb') as file_data:
-		raw_data = pickle.load(file_data)
-	print("Here2")
-	fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
-	print("Here3")
-	glob.mat.addRawInfoList(fbdata)
-	print("Here4")
+	# with open('fb_data.dat','rb') as file_data:
+	# 	raw_data = pickle.load(file_data)
+	
+	# fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
+
+	# glob.mat.addRawInfoList(fbdata)
+
+	fb_events = apiwrappers.responses.facebook_event.list_from_file('fb_events_data.dat')
+	glob.mat.addRawInfoList(fb_events)
 
 """ Production mode initialization
 	It's supposed to load previously saved data from disk and

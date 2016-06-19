@@ -6,6 +6,12 @@ import pickle
 from math import sin, cos, sqrt, atan2, radians
 import logging
 
+
+class SOCIALMEDIAS:
+    instagram   = 1
+    facebook    = 2
+    facebook_event = 3
+
 """
 Основной элемент(класс) многослойной рекурентной матрицы.
 Поддерживает добавление элементов и извлечение n-го подслоя
@@ -172,6 +178,7 @@ class DataCell:
 		layer = self.getLayer(layer_depth)
 		
 		circles = []
+		locations = []
 		for i in range(len(layer)):
 			for j in range(len(layer[0])):
 
@@ -186,8 +193,19 @@ class DataCell:
 								count += len(cell.items)**2
 						if (count != 0):
 							coords = coords/count
+
+							#Find and add all containing locations
+							for ev_ref in layer[i][j]().items:
+								ev = ev_ref()
+								if ev.data['socialMedia'] == SOCIALMEDIAS.facebook_event:
+									locations.append(ev)
+
 							circles.append((coords[0],coords[1],count))
-		return circles
+
+		cell_size = glob.geoDistance(self.coordinates[0],(self.coordinates[0][0],self.coordinates[1][1]))/self.resolution
+		for i in range(max(0,layer_depth-1)):
+			cell_size/=2
+		return circles,locations,cell_size
 
 """
 Хранит главный DataCell и обслуживает его

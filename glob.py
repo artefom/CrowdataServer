@@ -35,11 +35,11 @@ def geoDistance(coord1,coord2):
 
 def getCircles(lat1,lng1,lat2,lng2):
     global mat
-    circles = mat.dataCell.getCircles(
+    circles, locations, cell_size = mat.dataCell.getCircles(
                                         ((lat1,lng1),
                                         (lat2,lng2))
                                     )
-    return circles
+    return circles, locations, cell_size
 
 """
     Merges dicts by overwriting same values from d1 with values from d2
