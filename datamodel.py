@@ -2,6 +2,7 @@ import weakref
 import numpy as np
 import math
 import glob
+import pickle
 from math import sin, cos, sqrt, atan2, radians
 import logging
 
@@ -167,7 +168,7 @@ class DataCell:
 		layer_depth = self.getLayerDepth(dist)
 		if (layer_depth >= self.depth):
 			layer_depth = self.depth-1
-			
+
 		layer = self.getLayer(layer_depth)
 		
 		circles = []
@@ -207,7 +208,11 @@ class DataMatrix:
 	"""
 	def addRawInfoList(self,rawList):
 		stats = 0
+		total = len(rawList)
+		count = 0
 		for i in range(len(rawList)):
+			count+=1
+			print('loaded',count,'of',total)
 			if not (rawList[i] in self.socialData):
 				#futher sorting weakrefs by cells
 				coordinates = rawList[i].data['coordinates']
@@ -216,3 +221,7 @@ class DataMatrix:
 					self.dataCell.addRef(weakref.ref(rawList[i]),coordinates)
 					stats += 1
 		print('Adeded new',stats,'elements to datacell')
+
+	"""
+		Load data from pickle-serialized object
+	"""

@@ -1,4 +1,9 @@
 
+class SOCIALMEDIAS:
+    instagram   = 1
+    facebook    = 2
+
+
 """
 Базовый класс, представляющий общие характеристики даннх, извлечённых их различных соц. сетей
 Предположительно общие данные:
@@ -15,7 +20,7 @@ class base:
         self.data['id'] = id
 
     def __str__(self):
-        return self.socialMedia + ":" + self.data['id']
+        return str(self.data)
     def __eq__(self,other):
         return self.data['socialMedia']==other.data['socialMedia'] and self.data['id']==other.data['id']
 
@@ -50,3 +55,30 @@ class instagram(base):
             result.append(RawInfo_instagram(pic))
         
         return result
+
+class facebook(base):
+    
+    def __init__(self, id, json):
+        super().__init__(SOCIALMEDIAS.facebook, 
+            [json['location']['latitude'],json['location']['longitude']], 
+            id )
+
+    @staticmethod
+    def listFromResponse(response):
+        json_data = response.json()['data']
+        
+        result = []
+        
+        for pic in json_data:
+            result.append(RawInfo_instagram(pic))
+        
+        return result
+
+    @staticmethod
+    def list_from_raw_data(data):
+        newborns = []
+        
+        for id,v in data.items():
+            newborns.append(facebook(id,v))
+
+        return newborns

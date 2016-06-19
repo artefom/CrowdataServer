@@ -6,6 +6,8 @@ import glob
 import apiwrappers
 import apiwrappers.responses
 import datamodel
+import pickle
+
 
 """
 	This executed before server start in debug mode
@@ -13,6 +15,21 @@ import datamodel
 def startTests():
 
 	print("Tests executed")
+
+	#raw_data = []
+
+	# with open('fb_data.dat','rb') as file_data:
+	# 	raw_data = pickle.load(file_data)
+	# fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
+
+	# print(fbdata[0])
+		# fb = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
+		# print(len(fb))
+		# print(fb[1])
+
+if __name__ == '__main__':
+	startTests()
+
 
 	# global mat
 

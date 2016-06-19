@@ -12,6 +12,7 @@ from flask import request
 import os
 import signal
 import numpy as np
+import pickle
 from flask import Flask, make_response, request, current_app
 from datetime import timedelta
 from functools import update_wrapper
@@ -81,23 +82,24 @@ def crossdomain(origin=None, methods=None, headers=None,
 def circlesRequest(lat1,lng1,lat2,lng2):
 
 	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
-
+	
 	circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
 	sizes = np.array([i[2] for i in circles])
-	sizes = sizes-sizes.min()
-	sizes = sizes/sizes.max()
-	sizes = np.sqrt(sizes*3)
-	sizes = sizes/sizes.max()
-	sizes = 2+sizes*8
+	if len(sizes) > 0:
+		sizes = sizes-sizes.min()
+		sizes = sizes/sizes.max()
+		sizes = np.sqrt(sizes*3)
+		sizes = sizes/sizes.max()
+		sizes = 2+sizes*8
 
-	resp = dict()
-	resp['lat'] = [i[0] for i in circles]
-	resp['lng'] = [i[1] for i in circles]
-	resp['size'] = sizes.tolist()
+		resp = dict()
+		resp['lat'] = [i[0] for i in circles]
+		resp['lng'] = [i[1] for i in circles]
+		resp['size'] = sizes.tolist()
 
-	resp = json.dumps(resp,indent = 4)
+		resp = json.dumps(resp,indent = 4)
 
-	return resp
+		return resp
 
 
 """ When this code is in production, this variable should be True
@@ -120,15 +122,23 @@ def InitializeServer_Debug():
 	logging.info('Server Debug initialization')
 	glob.SetGlobalParameters()
 
-	sampleArr = []
-	for i in range(500):
-		ri = apiwrappers.responses.base(apiwrappers.SOCIALMEDIAS.instagram, 
-				(random.uniform(55.56747507540021,55.92150795277898),
-				random.uniform(37.371368408203125,37.863006591796875)),
-				i)
-		sampleArr.append(ri)
+	# sampleArr = []
+	# for i in range(500):
+	# 	ri = apiwrappers.responses.base(apiwrappers.SOCIALMEDIAS.instagram, 
+	# 			(random.uniform(55.56747507540021,55.92150795277898),
+	# 			random.uniform(37.371368408203125,37.863006591796875)),
+	# 			i)
+	# 	sampleArr.append(ri)
+	#   glob.mat.addRawInfoList(fbdata)
 
-	glob.mat.addRawInfoList(sampleArr)
+	print("Here")
+	with open('fb_data.dat','rb') as file_data:
+		raw_data = pickle.load(file_data)
+	print("Here2")
+	fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
+	print("Here3")
+	glob.mat.addRawInfoList(fbdata)
+	print("Here4")
 
 """ Production mode initialization
 	It's supposed to load previously saved data from disk and
