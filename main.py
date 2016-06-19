@@ -33,7 +33,7 @@ def hello_world():
 	return 'Hello, world!'
 
 @app.route('/circles2/<lat1>&<lng1>&<lat2>&<lng2>')
-def circlesRequest(lat1,lng1,lat2,lng2):
+def circles2Request(lat1,lng1,lat2,lng2):
 
 	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
 
