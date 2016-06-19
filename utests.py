@@ -16,10 +16,16 @@ def startTests():
 
 	# global mat
 
-	# lat1 = 55.92150795277898
-	# lng1 = 37.371368408203125
-	# lat2 = 55.56747507540021
-	# lng2 = 37.863006591796875
+	# lat1_old = 55.92150795277898
+	# lng1_old = 37.371368408203125
+	# lat2_old = 55.56747507540021
+	# lng2_old = 37.863006591796875
+
+	# lat1 = lat1_old*0.51+lat2_old*0.49
+	# lat2 = lat1_old*0.49+lat2_old*0.51
+
+	# lng1 = lng1_old*0.51+lng2_old*0.49
+	# lng2 = lng1_old*0.49+lng2_old*0.51
 
 	# circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
 	# resp = dict()

@@ -41,9 +41,9 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 	sizes = np.array([i[2] for i in circles])
 	sizes = sizes-sizes.min()
 	sizes = sizes/sizes.max()
-	sizes = np.sqrt(sizes*10)
+	sizes = np.sqrt(sizes*3)
 	sizes = sizes/sizes.max()
-	sizes = 5+sizes*5
+	sizes = 2+sizes*8
 
 	resp = dict()
 	resp['lat'] = [i[0] for i in circles]
@@ -134,16 +134,6 @@ def process_stdin():
 		if (command == "exit"):
 			break
 
-def print_output():
-	print("waiting for standard input... ('exit' to exit)")
-	
-	while True:
-		command = input()
-		logging.info("console command recieved: "+command)
-		if (command == "exit"):
-			break
-
-
 if __name__ == '__main__':
 
 	# server config
@@ -177,4 +167,9 @@ if __name__ == '__main__':
 	else:
 		InitializeServer_Debug()
 
-	startApp(cfg['ip'],cfg['port'])
+	_thread.start_new_thread( startApp, (cfg['ip'],cfg['port']) )
+
+	process_stdin()
+	
+
+	#startApp(cfg['ip'],cfg['port'])

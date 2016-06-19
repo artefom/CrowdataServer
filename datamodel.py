@@ -165,7 +165,11 @@ class DataCell:
 	def getCircles(self,coordinates):
 		dist = glob.geoDistance(coordinates[0],(coordinates[0][0],coordinates[1][1]))
 		layer_depth = self.getLayerDepth(dist)
+		if (layer_depth >= self.depth):
+			layer_depth = self.depth-1
+		print("layer_depth = ",layer_depth)
 		layer = self.getLayer(layer_depth)
+		print("Layer=",layer)
 		
 		circles = []
 		for i in range(len(layer)):
