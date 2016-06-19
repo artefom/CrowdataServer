@@ -147,14 +147,14 @@ def InitializeServer_Debug():
 	# 			random.uniform(37.371368408203125,37.863006591796875)),
 	# 			i)
 	# 	sampleArr.append(ri)
-	#   glob.mat.addRawInfoList(fbdata)
-
-	# with open('fb_data.dat','rb') as file_data:
-	# 	raw_data = pickle.load(file_data)
-	
-	# fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
-
 	# glob.mat.addRawInfoList(fbdata)
+
+	with open('fb_data.dat','rb') as file_data:
+		raw_data = pickle.load(file_data)
+	
+	fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
+
+	glob.mat.addRawInfoList(fbdata)
 
 	fb_events = apiwrappers.responses.facebook_event.list_from_file('fb_events_data.dat')
 	glob.mat.addRawInfoList(fb_events)
