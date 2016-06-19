@@ -82,10 +82,10 @@ def crossdomain(origin=None, methods=None, headers=None,
 def circlesRequest(lat1,lng1,lat2,lng2):
 
 	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
-	
-	circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
-	sizes = np.array([i[2] for i in circles])
-	if len(sizes) > 0:
+
+	try:
+		circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
+		sizes = np.array([i[2] for i in circles])
 		sizes = sizes-sizes.min()
 		sizes = sizes/sizes.max()
 		sizes = np.sqrt(sizes*3)
@@ -100,7 +100,8 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 		resp = json.dumps(resp,indent = 4)
 
 		return resp
-
+	except:
+		pass
 
 """ When this code is in production, this variable should be True
 """
