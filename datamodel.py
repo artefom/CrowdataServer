@@ -2,6 +2,7 @@ import weakref
 import numpy as np
 import math
 import glob
+import random
 import pickle
 from math import sin, cos, sqrt, atan2, radians
 import logging
@@ -200,11 +201,27 @@ class DataCell:
 								if ev.data['socialMedia'] == SOCIALMEDIAS.facebook_event:
 									locations.append(ev)
 
-							circles.append((coords[0],coords[1],count))
+							url = ""
+
+							try:
+								index = int(random.uniform(0,len(locations)))
+								if (index < 0):
+									index = 0
+								if (index >= len(locations)):
+									index = len(locations)-1
+								if (index >= 0):
+									url = locations[index].data['data']['urls'][0]
+							except Exception as ex:
+								print("URL EXCEPTION: "+str(ex))
+
+							circles.append((coords[0],coords[1],count,url))
+
+							#circles.append((coords[0],coords[1],count))
 
 		cell_size = glob.geoDistance(self.coordinates[0],(self.coordinates[0][0],self.coordinates[1][1]))/self.resolution
 		for i in range(max(0,layer_depth-1)):
 			cell_size/=2
+
 		return circles,locations,cell_size
 
 """

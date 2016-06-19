@@ -16,6 +16,7 @@ import pickle
 from flask import Flask, make_response, request, current_app
 from datetime import timedelta
 from functools import update_wrapper
+from flask import render_template
 
 #import crowdata packages and modules
 import utests
@@ -34,7 +35,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-	return 'Hello, world!'
+	return render_template('index.html')
 
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
@@ -95,8 +96,9 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 				locations_data.append( i.data )
 			except:
 				pass
-		
+
 		#circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
+
 		sizes = np.array([i[2] for i in circles])
 		count = sizes
 		sizes = sizes-sizes.min()
@@ -109,6 +111,7 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 		resp = dict()
 		resp['lat'] = [i[0] for i in circles]
 		resp['lng'] = [i[1] for i in circles]
+		resp['c_urls'] = [i[3] for i in circles]
 		resp['size'] = sizes.tolist()
 		resp['size2'] = sizes2.tolist()
 		resp['count'] = count.tolist()
@@ -117,8 +120,8 @@ def circlesRequest(lat1,lng1,lat2,lng2):
 		resp = json.dumps(resp,indent = 4,ensure_ascii=False)
 
 		return resp
-	except:
-		pass
+	except Exception as e:
+		print("GET PROCESS ERROR: "+str(e))
 
 """ When this code is in production, this variable should be True
 """
@@ -154,7 +157,7 @@ def InitializeServer_Debug():
 	
 	fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
 
-	glob.mat.addRawInfoList(fbdata)
+	#glob.mat.addRawInfoList(fbdata)
 
 	fb_events = apiwrappers.responses.facebook_event.list_from_file('fb_events_data.dat')
 	glob.mat.addRawInfoList(fb_events)

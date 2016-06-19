@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta charset="utf-8">  
+    <style type="text/css">
+      html, body { height: 100%; margin: 0; padding: 0; }
+      #map { height: 100%; }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  </head>
+  <body>
+<div id="Button" style="
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: blue;
+    z-index: 2;" onclick = "deleteAll(); makeRequest();">
+  	
+</div>
+    <div id="map"></div>
+    <script type="text/javascript">
+ 
+var size = [];
+var lat = [];
+var lng = [];
+var circles = [];
+
+
+
+var Green =  "#99FF84";
+var Yellow   = "#FFFE71";
+var Red= "#FD6C70";
+
+
+// var size = [ 2.0, 5.2, 4.771281292110204, 4.4440403706431155, 6.800000000000001, 6.026578365477733, 4.262741699796952, 4.6127890589687235, 6.1311822359545785, 5.695041722813605, 2.0, 6.88808074128623, 4.6127890589687235, 7.842373946721772, 8.265248066384391, 6.525483399593904, 7.768882040742383, 9.561305002004174, 4.4440403706431155, 5.2, 5.2, 8.596969000988256, 6.026578365477733, 6.710272462041519, 8.265248066384391, 4.4440403706431155, 5.919183588453086, 7.059644256269408, 6.026578365477733, 3.6, 5.919183588453086, 4.6127890589687235, 6.525483399593904, 5.063766744820282, 5.919183588453086, 4.6127890589687235, 10.0, 4.4440403706431155, 8.466323014923809, 3.6, 6.026578365477733, 7.768882040742383, 5.2, 5.577708763999664, 5.919183588453086, 8.057502235520293, 7.914952803418356, 7.386402633793108, 6.800000000000001 ];
+//  var lng = [ 37.45330810546875, 37.51476287841797, 37.57621765136719, 37.632551193237305, 37.696054458618164, 37.763840935447, 37.81862258911133, 37.46075716885653, 37.50763768735139, 37.570287804854544, 37.6274299621582, 37.691527951148245, 37.74289044466886, 37.814414445744006, 37.461042209547394, 37.52386728922526, 37.574754442487446, 37.645720073155, 37.69400596618652, 37.760581970214844, 37.80564880371094, 37.45842933654785, 37.519418543035336, 37.582221853322, 37.62533966375857, 37.68478775024414, 37.764971596854075, 37.824830141934484, 37.46075716885653, 37.51476287841797, 37.57914406912668, 37.61998089877042, 37.68091837565104, 37.74229185921805, 37.830815996442524, 37.46075716885653, 37.51988410949707, 37.5618782043457, 37.629005725567154, 37.70424842834473, 37.745683843439274, 37.8030150277274, 37.44306564331055, 37.5028133392334, 37.57914406912668, 37.63455515322478, 37.70657626065341, 37.74424939542203, 37.80667304992676 ];
+//  var lat = [ 55.86987815816125, 55.862502473215855, 55.86987815816125, 55.86619031568855, 55.85881463074316, 55.86015566436959, 55.86741959651278, 55.83098818299464, 55.81568290791033, 55.83183515160081, 55.8256240484889, 55.82372064592234, 55.81489577947742, 55.82013516666907, 55.78287518064214, 55.787106582662965, 55.775574757788036, 55.77199228224312, 55.777682096343845, 55.78579534978379, 55.781369938816546, 55.73711582914421, 55.73543953711116, 55.73762449707148, 55.72417074944414, 55.733427986671515, 55.73922316770003, 55.73108117782525, 55.6831392256802, 55.68179819205377, 55.696022727305596, 55.69621430353795, 55.68630555507596, 55.686012869165424, 55.68337869597064, 55.637879340788025, 55.635274640859755, 55.64491976732681, 55.64236664561494, 55.64123192485412, 55.646931317766466, 55.6364904131035, 55.59697781518177, 55.6018949384787, 55.593816807348034, 55.5920072448925, 55.59362523111568, 55.599768614890834, 55.604353500127175 ];
+
+function makeRequest(){
+	var mainPartOfUrl = "http://139.59.156.51/circles/";
+	var nwlat  =  map.getBounds().getNorthEast().lat();
+    var nwlng = map.getBounds().getSouthWest().lng();
+
+	var selat = map.getBounds().getSouthWest().lat();
+	var selng = map.getBounds().getNorthEast().lng();
+	var amp = "&";
+
+	var urlForRequest = mainPartOfUrl.concat(nwlat,amp);
+	urlForRequest = urlForRequest.concat(nwlng,amp);
+	urlForRequest = urlForRequest.concat(selat,amp);
+	urlForRequest = urlForRequest.concat(selng);
+	 
+
+	var xmlHttp = new XMLHttpRequest();
+   
+    xmlHttp.open('GET', urlForRequest, true);
+
+    xmlHttp.onload = function() {
+  		parseJSON(JSON.parse(this.responseText));
+	}
+
+	xmlHttp.onerror = function() {
+  		alert( 'Ошибка ' + this.status );
+	}
+
+	xmlHttp.send();
+
+
+
+
+
+}
+
+
+
+
+
+function parseJSON(myArr){
+	
+
+  for(i=0;i<myArr.size.length;i++)
+  {
+  	size[i] = myArr.size[i];
+  	lat[i] = myArr.lat[i];
+  	lng[i] = myArr.lng[i];
+  }
+  drawAllPoints();
+}
+
+function drawAllPoints(){
+
+var max = 0;	
+for(i=0;i<size.length;i++)
+{
+	if(size[i]>max)
+	{
+		max = size[i];
+	}
+}	
+
+var color = ""
+var coef = 10;
+	for(i=0;i<size.length;i++)
+  	{
+  		var center = {lat : lat[i], lng:lng[i]};
+  		if(size[i]/max > 0.7){
+  			color = Red;
+  			//coef = 10;
+  		}
+  		else if(size[i]/max < 0.35)
+  		{
+  			color  = Green;
+  			coef = 4;
+  		}
+  		else {
+  			color  = Yellow;
+  			//coef  = 8;
+  		}
+     	drawOverlay(center,size[i] / coef, color);
+  	}
+}
+
+
+
+var stylez = [
+    {
+      featureType: "all",
+      elementType: "all",
+      stylers: [
+        { saturation: -100 } // <-- THIS
+      ]
+    }
+];
+
+var moscow = {lat: 55.751244, lng: 37.618423};
+var moscow2 = {lat: 55.951244, lng: 37.618423};
+var moscow3 = {lat: 56.051244, lng: 37.618423};
+var map;
+
+
+
+
+
+function initMap() {
+
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 55.751244, lng: 37.618423},
+    zoom: 11,
+  zoomControl: true,
+  mapTypeControl: false,
+  scaleControl: true,
+  streetViewControl: false,
+  rotateControl: false
+  });
+
+var mapType = new google.maps.StyledMapType(stylez, { name:"Grayscale" });    
+map.mapTypes.set('tehgrayz', mapType);
+map.setMapTypeId('tehgrayz');
+}
+
+function detectBrowser() {
+  var useragent = navigator.userAgent;
+  var mapdiv = document.getElementById("map");
+
+  if (useragent.indexOf('iPhone') != -1 || useragent.indexOf('Android') != -1 ) {
+    mapdiv.style.width = '100%';
+    mapdiv.style.height = '100%';
+  } else {
+    mapdiv.style.width = '600px';
+    mapdiv.style.height = '800px';
+  }
+}
+
+
+//Green   #99FF84
+//Yellow  #FFFE71
+//Red     #FD6C70
+
+function setMapOnAll(map) {
+  for (var i = 0; i < circles.length; i++) {
+    circles[i].setMap(map);
+  }
+}
+
+
+
+function deleteAll(){
+	setMapOnAll(null);
+  circles.length = 0;
+// cityCircle.setMap(null);
+}
+
+function drawOverlay(OverlayCenter,rad, color){
+
+	
+    // Add the circle for this city to the map.
+    var cityCircle = new google.maps.Circle({
+      strokeColor: color,
+      strokeOpacity: 0.9,
+      strokeWeight: 2,
+      fillColor: color,
+      fillOpacity: 0.8,
+      map: map,
+      center: OverlayCenter,
+      radius: rad * 1000
+    });
+
+    circles.push(cityCircle);
+  
+}
+
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPaBADeYxOvHbcQKOpqi41mNjJYHZunsI&callback=initMap">
+    </script>
+  </body>
+</html>
