@@ -12,6 +12,9 @@ from flask import request
 import os
 import signal
 import numpy as np
+from flask import Flask, make_response, request, current_app
+from datetime import timedelta
+from functools import update_wrapper
 
 #import crowdata packages and modules
 import utests
@@ -32,31 +35,49 @@ app = Flask(__name__)
 def hello_world():
 	return 'Hello, world!'
 
-@app.route('/circles2/<lat1>&<lng1>&<lat2>&<lng2>')
-def circles2Request(lat1,lng1,lat2,lng2):
+def crossdomain(origin=None, methods=None, headers=None,
+                max_age=21600, attach_to_all=True,
+                automatic_options=True):
+    if methods is not None:
+        methods = ', '.join(sorted(x.upper() for x in methods))
+    if headers is not None and not isinstance(headers, str):
+        headers = ', '.join(x.upper() for x in headers)
+    if not isinstance(origin, str):
+        origin = ', '.join(origin)
+    if isinstance(max_age, timedelta):
+        max_age = max_age.total_seconds()
 
-	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
+    def get_methods():
+        if methods is not None:
+            return methods
 
-	circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
-	sizes = np.array([i[2] for i in circles])
-	sizes = sizes-sizes.min()
-	sizes = sizes/sizes.max()
-	sizes = np.sqrt(sizes*3)
-	sizes = sizes/sizes.max()
-	sizes = 2+sizes*8
+        options_resp = current_app.make_default_options_response()
+        return options_resp.headers['allow']
 
-	resp = dict()
-	resp['lat'] = [i[0] for i in circles]
-	resp['lng'] = [i[1] for i in circles]
-	resp['size'] = sizes.tolist()
+    def decorator(f):
+        def wrapped_function(*args, **kwargs):
+            if automatic_options and request.method == 'OPTIONS':
+                resp = current_app.make_default_options_response()
+            else:
+                resp = make_response(f(*args, **kwargs))
+            if not attach_to_all and request.method != 'OPTIONS':
+                return resp
 
-	resp = "Access-Control-Allow-Origin: * "+json.dumps(resp,indent = 4)
+            h = resp.headers
 
-	return resp
+            h['Access-Control-Allow-Origin'] = origin
+            h['Access-Control-Allow-Methods'] = get_methods()
+            h['Access-Control-Max-Age'] = str(max_age)
+            if headers is not None:
+                h['Access-Control-Allow-Headers'] = headers
+            return resp
 
-
+        f.provide_automatic_options = False
+        return update_wrapper(wrapped_function, f)
+    return decorator
 
 @app.route('/circles/<lat1>&<lng1>&<lat2>&<lng2>')
+@crossdomain(origin="*")
 def circlesRequest(lat1,lng1,lat2,lng2):
 
 	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
