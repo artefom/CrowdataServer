@@ -157,7 +157,7 @@ def InitializeServer_Debug():
 	
 	fbdata = apiwrappers.responses.facebook.list_from_raw_data(raw_data)
 
-	#glob.mat.addRawInfoList(fbdata)
+	glob.mat.addRawInfoList(fbdata)
 
 	fb_events = apiwrappers.responses.facebook_event.list_from_file('fb_events_data.dat')
 	glob.mat.addRawInfoList(fb_events)
