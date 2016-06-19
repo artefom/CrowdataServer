@@ -74,14 +74,16 @@ function makeRequest(){
 
 
 
-
+window.onload  = function() {
+	makeRequest();
+}
 
 function parseJSON(myArr){
 	
 
   for(i=0;i<myArr.size.length;i++)
   {
-  	size[i] = myArr.size[i];
+  	size[i] = myArr.size2[i];
   	lat[i] = myArr.lat[i];
   	lng[i] = myArr.lng[i];
   }
@@ -117,7 +119,7 @@ var coef = 10;
   			color  = Yellow;
   			//coef  = 8;
   		}
-     	drawOverlay(center,size[i] / coef, color);
+     	drawOverlay(center, Math.sqrt(size[i]) , color);
   	}
 }
 
@@ -152,6 +154,13 @@ function initMap() {
   scaleControl: true,
   streetViewControl: false,
   rotateControl: false
+  });
+
+
+ map.addListener('zoom_changed', function() {
+    // 3 seconds after the center of the map has changed, pan back to the
+    // marker.
+   deleteAll(); makeRequest();
   });
 
 var mapType = new google.maps.StyledMapType(stylez, { name:"Grayscale" });    
@@ -197,10 +206,10 @@ function drawOverlay(OverlayCenter,rad, color){
     // Add the circle for this city to the map.
     var cityCircle = new google.maps.Circle({
       strokeColor: color,
-      strokeOpacity: 0.9,
+      strokeOpacity: 0.6,
       strokeWeight: 2,
       fillColor: color,
-      fillOpacity: 0.8,
+      fillOpacity: 0.6,
       map: map,
       center: OverlayCenter,
       radius: rad * 1000
