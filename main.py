@@ -32,6 +32,30 @@ app = Flask(__name__)
 def hello_world():
 	return 'Hello, world!'
 
+@app.route('/circles2/<lat1>&<lng1>&<lat2>&<lng2>')
+def circlesRequest(lat1,lng1,lat2,lng2):
+
+	logging.debug('processing request for '+str(lat1)+','+str(lng1)+','+str(lat2)+','+str(lng2) )
+
+	circles = glob.getCircles(float(lat1),float(lng1),float(lat2),float(lng2))
+	sizes = np.array([i[2] for i in circles])
+	sizes = sizes-sizes.min()
+	sizes = sizes/sizes.max()
+	sizes = np.sqrt(sizes*3)
+	sizes = sizes/sizes.max()
+	sizes = 2+sizes*8
+
+	resp = dict()
+	resp['lat'] = [i[0] for i in circles]
+	resp['lng'] = [i[1] for i in circles]
+	resp['size'] = sizes.tolist()
+
+	resp = "Access-Control-Allow-Origin: * "+json.dumps(resp,indent = 4)
+
+	return resp
+
+
+
 @app.route('/circles/<lat1>&<lng1>&<lat2>&<lng2>')
 def circlesRequest(lat1,lng1,lat2,lng2):
 
