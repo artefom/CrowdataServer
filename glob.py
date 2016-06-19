@@ -13,7 +13,7 @@ mat = None
 def SetGlobalParameters():
     global mat
     if (mat == None):
-        mat = datamodel.DataMatrix(7)
+        mat = datamodel.DataMatrix(9)
 
 def geoDistance(coord1,coord2):
     # approximate radius of earth in km
